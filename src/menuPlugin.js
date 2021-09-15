@@ -14,7 +14,7 @@ class MenuView {
 
 	constructor(items, editorView) {
 
-		this.items = items;
+		this.items = items
 		this.editorView = editorView
 
 		this.dom = document.createElement('div');

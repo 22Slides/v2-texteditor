@@ -82,13 +82,13 @@ const Editor = (parameters) => {
 				// Send data to callback function
 				parameters.change({
 					id: id,
-					html: html
+					html: html,
 				})
 
 			}
-    	},
-    	handleDOMEvents: {}, 
-    })
+		},
+		handleDOMEvents: {}, 
+	})
 
 }
 
