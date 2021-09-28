@@ -21,9 +21,6 @@ export default [
 			dev && serve({
 				port: 10002
 			}),
-			// dev && livereload({
-			// 	watch: './'
-			// })
 		]	
 	},
 	{
