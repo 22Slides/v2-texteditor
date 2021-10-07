@@ -13,27 +13,27 @@ export default [
 			file: './dist/editor.js',
 			format: 'es',
 			sourcemap: false,
-			plugins: [!dev && terser()]
+			plugins: [!dev && terser()],
 		},
 		plugins: [
 			resolve(),
 			commonjs(),
 			dev && serve({
-				port: 10002
+				port: 10002,
 			}),
-		]	
+		],
 	},
 	{
 		input: './test/styles.scss',
 		output: {
-			file: './test/styles.css'
+			file: './test/styles.css',
 		},
 		plugins: [
 			postcss({
 				extract: true,
 				minimize: false,
-				sourceMap: false
-			})
-		]
-	}
+				sourceMap: false,
+			}),
+		],
+	},
 ]
