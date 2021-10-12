@@ -1,4 +1,4 @@
-import Editor from "../dist/editor.js"
+// import Editor from "../dist/editor.js"
 
 import Editor from "../src/editor.js"
 
