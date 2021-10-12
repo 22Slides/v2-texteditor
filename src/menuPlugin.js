@@ -23,7 +23,7 @@ class MenuView {
 
 		// Build link input prompt
 		let container = document.createElement('div');
-		container.innerHTML = '<div class="texteditor__link"><input class="texteditor__linkinput" type="text" placeholder="Enter an address..."><div class="texteditor__linkclose">x</div></div>';
+		container.innerHTML = '<div class="texteditor__link"><input class="texteditor__linkinput" type="text" placeholder="Enter an address..."><div class="texteditor__linkclose">&times;</div></div>';
 		let linkPrompt = container.querySelector("*");
 		const input = container.querySelector("input");
 		const inputCloseBtn = container.querySelector(".texteditor__linkclose");

@@ -1,4 +1,6 @@
-## Prosemirror-based drop-in editor
+## 22Slides v2 Text Editor
+
+22Slides v2's Prosemirror-based text editor.
 
 #### Tests
 
@@ -8,7 +10,7 @@
 
 #### Usage
 
-```javascript
+```js
 import Editor from "../dist/editor.js"
 
 Editor({
@@ -32,3 +34,7 @@ Editor({
 })
 ```
 
+#### Contributors
+
+- [Jakub Markiewicz](https://github.com/JakubMarkiewicz)
+- [Bryan Buchanan](https://github.com/bryanbuchanan)
