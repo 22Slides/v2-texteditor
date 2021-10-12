@@ -4,9 +4,9 @@
 
 #### Tests
 
-- [One instance](https://bryanbuchanan.github.io/texteditor/test/index.html)
-- [Multiple instances on one page](https://bryanbuchanan.github.io/texteditor/test/multiple.html)
-- [Multiple instances inside iframe](https://bryanbuchanan.github.io/texteditor/test/frame.html)
+- [One instance](https://22slides.github.io/v2-texteditor/test/index.html)
+- [Multiple instances on one page](https://22slides.github.io/v2-texteditor/test/multiple.html)
+- [Multiple instances inside iframe](https://22slides.github.io/v2-texteditor/test/frame.html)
 
 #### Usage
 
