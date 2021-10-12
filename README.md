@@ -26,7 +26,7 @@ Editor({
         { type: "ul", title: "Bullet List", icon: 'ul' },
         { type: "ol", title: "Numbered List", icon: 'ol' },
         { type: "blockquote", title: "Quote", icon: 'quote' },
-        { type: "hr", title: "Horizontal Line", icon: 'hr' }
+        { type: "hr", title: "Horizontal Line", icon: 'hr' },
     ],
     change: (data) => {
         console.log(data)

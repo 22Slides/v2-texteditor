@@ -1,5 +1,7 @@
 import Editor from "../dist/editor.js"
 
+import Editor from "../src/editor.js"
+
 for (const text of document.querySelectorAll('.text')) {
 
 	Editor({
