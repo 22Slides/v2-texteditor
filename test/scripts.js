@@ -1,6 +1,4 @@
-// import Editor from "../dist/editor.js"
-
-import Editor from "../src/editor.js"
+import Editor from "../dist/editor.js"
 
 for (const text of document.querySelectorAll('.text')) {
 
