@@ -17,9 +17,16 @@ for (const text of document.querySelectorAll('.text')) {
 			{ type: "blockquote", title: "Quote", icon: '<i class="fal fa-quote-left"></i>' },
 			// { type: "hr", title: "Horizontal Line", icon: 'hr' }
 		],
-		change: (data) => {
+		change: data => {
 			console.log(data)
+		},
+		focus: () => {
+			console.log('focus!')
+		},
+		blur: () => {
+			console.log('blurrrrr')
 		}
+
 	})
 
 }

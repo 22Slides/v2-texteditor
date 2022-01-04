@@ -14,7 +14,7 @@ import { buildKeymap } from "./keymap"
 
 import { menuPlugin } from "./menuPlugin.js"
 
-const Editor = (parameters) => {
+const Editor = parameters => {
 
 	const el = parameters.element
 
@@ -87,12 +87,19 @@ const Editor = (parameters) => {
 
 			}
 		},
-		handleDOMEvents: {}, 
+		handleDOMEvents: {
+			focus: (view, event) => {
+				if (parameters.focus) parameters.focus()
+			},
+			blur: (view, event) => {
+				if (parameters.blur) parameters.blur()
+			},
+		}, 
 	})
 
 }
 
-const toHTML = (string) => {
+const toHTML = string => {
 	const div = document.createElement('div')
 	div.appendChild(string)
 	return div.innerHTML
