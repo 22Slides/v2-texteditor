@@ -1,6 +1,6 @@
-## 22Slides v2 Text Editor
+## 22Slides V2 Text Editor
 
-22Slides v2's Prosemirror-based text editor.
+22Slides V2's Prosemirror-based text editor.
 
 #### Tests
 

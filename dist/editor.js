@@ -13915,12 +13915,23 @@ const insertAtEnd = (editorView, type) => (_, dispatch) => {
 // ==== link utils
 
 // Append "http" if doesnt exist
-const appendUrlPrefix = (url) =>
-  url.startsWith("http")
-    ? url
-    : url.startsWith("mailto:")
-    ? url
-    : `http://${url}`;
+// const appendUrlPrefix = (url) =>
+//   url.startsWith("http")
+//     ? url
+//     : url.startsWith("mailto:")
+//     ? url
+//     : `http://${url}`;
+
+// Append "http" if doesnt exist
+const appendUrlPrefix = (url) => {
+  return url.startsWith("http")
+  ? url
+  : url.startsWith("mailto:")
+  ? url
+  : url.startsWith('/')
+  ? url
+  : `http://${url}`
+};
 
 // Build <a /> element and append it to editor
 const createAnchor = (linkProps, editorView, schema) => {
