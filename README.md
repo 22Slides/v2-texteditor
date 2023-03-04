@@ -28,7 +28,7 @@ Editor({
         { type: "blockquote", title: "Quote", icon: 'quote' },
         { type: "hr", title: "Horizontal Line", icon: 'hr' },
     ],
-    change: (data) => {
+    change: data => {
         console.log(data)
     }
 })

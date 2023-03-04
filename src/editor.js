@@ -99,6 +99,7 @@ const Editor = parameters => {
 
 }
 
+// Unused
 const toHTML = string => {
 	const div = document.createElement('div')
 	div.appendChild(string)
