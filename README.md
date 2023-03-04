@@ -34,6 +34,11 @@ Editor({
 })
 ```
 
+#### Publishing
+
+1. Run the compiler: `npm run build`
+2. Publish to main git branch
+
 #### Contributors
 
 - [Jakub Markiewicz](https://github.com/JakubMarkiewicz)

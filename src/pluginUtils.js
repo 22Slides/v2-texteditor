@@ -118,13 +118,12 @@ export const insertAtEnd = (editorView, type) => (_, dispatch) => {
 
 // Append "http" if doesnt exist
 const appendUrlPrefix = (url) => {
-  return url.startsWith("http")
-  ? url
-  : url.startsWith("mailto:")
-  ? url
-  : url.startsWith('/')
-  ? url
-  : `http://${url}`
+  if (url.startsWith('http')) return url
+  if (url.startsWith('mailto:')) return url
+  if (url.startsWith('tel:')) return url
+  if (url.startsWith('sms:')) return url
+  if (url.startsWith('/')) return url
+  return `http://${url}`
 }
 
 // Build <a /> element and append it to editor
