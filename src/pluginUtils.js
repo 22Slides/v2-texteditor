@@ -1,19 +1,19 @@
-import { lift, setBlockType, toggleMark, wrapIn } from "prosemirror-commands";
-import { liftListItem, wrapInList } from "prosemirror-schema-list";
+import { lift, setBlockType, toggleMark, wrapIn } from "prosemirror-commands"
+import { liftListItem, wrapInList } from "prosemirror-schema-list"
 
 // Utility in place of native chainCommands, to prevent it from stopping on first truthy value
 function chainTransactions(...commands) {
-  return (state, dispatch) => {
-    const dispatcher = (tr) => {
-      state = state.apply(tr);
-      dispatch(tr);
-    };
-    const last = commands.pop();
-    const reduced = commands.reduce((result, command) => {
-      return result || command(state, dispatcher);
-    }, false);
-    return reduced && last !== undefined && last(state, dispatch);
-  };
+	return (state, dispatch) => {
+		const dispatcher = (tr) => {
+			state = state.apply(tr)
+			dispatch(tr)
+		}
+		const last = commands.pop()
+		const reduced = commands.reduce((result, command) => {
+			return result || command(state, dispatcher)
+		}, false)
+		return reduced && last !== undefined && last(state, dispatch)
+	}
 }
 
 // Check if selection has an active type
@@ -117,51 +117,49 @@ export const insertAtEnd = (editorView, type) => (_, dispatch) => {
 //     : `http://${url}`;
 
 // Append "http" if doesnt exist
-const appendUrlPrefix = (url) => {
-  if (url.startsWith('http')) return url
-  if (url.startsWith('mailto:')) return url
-  if (url.startsWith('tel:')) return url
-  if (url.startsWith('sms:')) return url
-  if (url.startsWith('/')) return url
-  return `http://${url}`
+const appendUrlPrefix = url => {
+	if (url.startsWith('http')) return url
+	if (url.startsWith('mailto:')) return url
+	if (url.startsWith('tel:')) return url
+	if (url.startsWith('sms:')) return url
+	if (url.startsWith('/')) return url
+	return `http://${url}`
 }
 
 // Build <a /> element and append it to editor
 const createAnchor = (linkProps, editorView, schema) => {
-  const node = schema.text(linkProps.title, [
-    schema.marks.link.create({
-      ...linkProps,
-      href: appendUrlPrefix(linkProps.href),
-    }),
-  ]);
-  return editorView.dispatch(
-    editorView.state.tr.replaceSelectionWith(node, false)
-  );
-};
+	const node = schema.text(linkProps.title, [
+		schema.marks.link.create({
+			...linkProps,
+			href: appendUrlPrefix(linkProps.href),
+		}),
+	])
+	return editorView.dispatch(
+		editorView.state.tr.replaceSelectionWith(node, false)
+	)
+}
 
 // Hide input menu
 export const hideLinkInput = editorView => {
-  editorView.dom.parentNode.querySelector('.texteditor__menu').classList.remove('link')
+	editorView.dom.parentNode.querySelector('.texteditor__menu').classList.remove('link')
 }
 
 export const resetInput = (editorView, input) => {
-  hideLinkInput(editorView);
-  input.value = "";
-  editorView.focus();
-};
+	hideLinkInput(editorView)
+	input.value = ""
+	editorView.focus()
+}
 
-const handleLinkInputSubmit = (editorView, schema, selectedText, input) => (
-  ev
-) => {
-  if (ev.key === "Enter") {
-    const { value } = ev.target;
-    const url = appendUrlPrefix(value);
-    createAnchor({ href: url, title: selectedText }, editorView, schema);
-    resetInput(editorView, input);
-  } else if (ev.key === "Escape") {
-    resetInput(editorView, input);
-  }
-};
+const handleLinkInputSubmit = (editorView, schema, selectedText, input) => (ev) => {
+	if (ev.key === "Enter") {
+		const { value } = ev.target
+		const url = appendUrlPrefix(value)
+		createAnchor({ href: url, title: selectedText }, editorView, schema)
+		resetInput(editorView, input)
+	} else if (ev.key === "Escape") {
+		resetInput(editorView, input)
+	}
+}
 
 // handles link creation
 export const linkHandler = editorView => (state, dispatch) => {
@@ -224,15 +222,14 @@ export const linkHandler = editorView => (state, dispatch) => {
 // eventListeners
 
 export const setupInputListeners = (editorView, input, inputCloseBtn) => {
-  inputCloseBtn.addEventListener("click", () => {
-    input.value = "";
-    hideLinkInput(editorView);
-  });
-};
+	inputCloseBtn.addEventListener('click', () => {
+		input.value = ""
+		hideLinkInput(editorView)
+	})
+}
 
-
-export const stringToDom = (string) => {
-  const div = document.createElement('div')
+export const stringToDom = string => {
+	const div = document.createElement('div')
 	div.innerHTML = string
 	return div.querySelector('*')
-};
+}
