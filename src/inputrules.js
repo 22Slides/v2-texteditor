@@ -13,7 +13,7 @@ export function blockQuoteRule(nodeType) {
 // followed by a dot at the start of a textblock into an ordered list.
 export function orderedListRule(nodeType) {
 	return wrappingInputRule(/^(\d+)\.\s$/, nodeType, match => ({order: +match[1]}),
-					   (match, node) => node.childCount + node.attrs.order == +match[1])
+					(match, node) => node.childCount + node.attrs.order == +match[1])
 }
 
 // : (NodeType) → InputRule

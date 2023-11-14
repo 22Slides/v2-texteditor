@@ -1,4 +1,3 @@
-
 import { EditorState } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
 import { Schema, DOMParser } from "prosemirror-model"
@@ -9,8 +8,8 @@ import { keymap } from "prosemirror-keymap"
 import { history } from "prosemirror-history"
 import { addListNodes } from "prosemirror-schema-list"
 
-import { buildInputRules } from "./inputrules"
-import { buildKeymap } from "./keymap"
+import { buildInputRules } from "./inputrules.js"
+import { buildKeymap } from "./keymap.js"
 
 import { menuPlugin } from "./menuPlugin.js"
 
@@ -25,18 +24,18 @@ const Editor = parameters => {
 	editor.classList.add('texteditor')
 	el.append(editor)
 
-    // Create instance of menu plugin
-    const menu = new menuPlugin(parameters.menu)
+	// Create instance of menu plugin
+	const menu = new menuPlugin(parameters.menu)
 
-    const mySchema = new Schema({
-    	nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
-    	marks: schema.spec.marks,
-    })
+	const mySchema = new Schema({
+		nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
+		marks: schema.spec.marks,
+	})
 
-    // Define state
-    const state = EditorState.create({
-    	doc: DOMParser.fromSchema(mySchema).parse(content),
-    	plugins: [
+	// Define state
+	const state = EditorState.create({
+		doc: DOMParser.fromSchema(mySchema).parse(content),
+		plugins: [
 			menu,
 			buildInputRules(mySchema),
 			history(),
@@ -61,10 +60,10 @@ const Editor = parameters => {
 			// 	"Mod-y": redo,
 			// }),
 		],
-    })
+	})
 
-    // Define view
-    let view = new EditorView(editor, {
+	// Define view
+	let view = new EditorView(editor, {
 		state,
 		dispatchTransaction(transaction) {
 

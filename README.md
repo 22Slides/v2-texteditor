@@ -2,6 +2,17 @@
 
 22Slides V2's Prosemirror-based text editor.
 
+#### Development
+
+```
+npm run dev
+```
+
+- <http://localhost:10002/test/index.html>
+- <http://localhost:10002/test/multiple.html>
+- <http://localhost:10002/test/frame.html>
+
+
 #### Tests
 
 - [One instance](https://22slides.github.io/v2-texteditor/test/index.html)
