@@ -122,10 +122,10 @@ class MenuView {
 
 			// Show/hide menu
 			if (this.editorView.state.selection.empty) {
-				menu.classList.remove("active")
-				menu.classList.remove("link")
+				menu.classList.remove('active')
+				menu.classList.remove('link')
 			} else {
-				menu.classList.add("active")
+				menu.classList.add('active')
 			}
 
 			// Reposition menu, if selection changed

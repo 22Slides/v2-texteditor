@@ -12,7 +12,7 @@ export default [
 		output: {
 			file: './dist/editor.js',
 			format: 'es',
-			sourcemap: false,
+			sourcemap: true,
 			plugins: [!dev && terser()],
 		},
 		plugins: [

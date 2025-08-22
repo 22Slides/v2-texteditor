@@ -28,7 +28,7 @@ const Editor = parameters => {
 	const menu = new menuPlugin(parameters.menu)
 
 	const mySchema = new Schema({
-		nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
+		nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
 		marks: schema.spec.marks,
 	})
 
@@ -106,4 +106,3 @@ const toHTML = string => {
 }
 
 export default Editor
-
