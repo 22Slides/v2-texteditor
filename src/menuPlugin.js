@@ -17,66 +17,66 @@ class MenuView {
 		this.items = items
 		this.editorView = editorView
 
-		this.dom = document.createElement('div');
-		this.dom.className = "texteditor__menu";
-		const schema = editorView.state.schema;
+		this.dom = document.createElement('div')
+		this.dom.className = "texteditor__menu"
+		const schema = editorView.state.schema
 
 		// Build link input prompt
-		let container = document.createElement('div');
-		container.innerHTML = '<div class="texteditor__link"><input class="texteditor__linkinput" type="text" placeholder="Enter an address..."><div class="texteditor__linkclose">&times;</div></div>';
-		let linkPrompt = container.querySelector("*");
-		const input = container.querySelector("input");
-		const inputCloseBtn = container.querySelector(".texteditor__linkclose");
-		setupInputListeners(this.editorView, input, inputCloseBtn);
-		this.dom.appendChild(linkPrompt);
+		let container = document.createElement('div')
+		container.innerHTML = '<div class="texteditor__link"><input class="texteditor__linkinput" type="text" placeholder="Enter an address..."><div class="texteditor__linkclose">&times;</div></div>'
+		let linkPrompt = container.querySelector("*")
+		const input = container.querySelector("input")
+		const inputCloseBtn = container.querySelector(".texteditor__linkclose")
+		setupInputListeners(this.editorView, input, inputCloseBtn)
+		this.dom.appendChild(linkPrompt)
 
 		// Run conversions on item array
 		for (const item of this.items) {
 
 			// Convert strings to dom nodes
 			if (typeof item.dom === "string") {
-				const container = document.createElement('div');
-				container.innerHTML = item.dom;
-				item.dom = container.querySelector("*");
+				const container = document.createElement('div')
+				container.innerHTML = item.dom
+				item.dom = container.querySelector("*")
 			}
 
 			// Convert "type" to actual commands
 			if (item.type === "strong") {
-				item.command = toggleMark(schema.marks.strong);
-				item.checkActive = generalActiveCheck(schema.marks.strong);
+				item.command = toggleMark(schema.marks.strong)
+				item.checkActive = generalActiveCheck(schema.marks.strong)
 			} else if (item.type === "em") {
-				item.command = toggleMark(schema.marks.em);
-				item.checkActive = generalActiveCheck(schema.marks.em);
+				item.command = toggleMark(schema.marks.em)
+				item.checkActive = generalActiveCheck(schema.marks.em)
 			} else if (item.type === "h2") {
 				item.command = toggleBlockType(editorView, "heading", {
 					level: 2,
-				});
+				})
 				item.checkActive = generalActiveCheck(schema.nodes.heading, {
 					level: 2,
-				});
+				})
 			} else if (item.type === "h3") {
 				item.command = toggleBlockType(editorView, "heading", {
 					level: 3,
-				});
+				})
 				item.checkActive = generalActiveCheck(schema.nodes.heading, {
 					level: 3,
-				});
+				})
 			} else if (item.type === "link") {
-				item.command = linkHandler(editorView);
-				item.checkActive = generalActiveCheck(schema.marks.link);
+				item.command = linkHandler(editorView)
+				item.checkActive = generalActiveCheck(schema.marks.link)
 			} else if (item.type === "blockquote") {
-				item.command = toggleWrapIn(editorView, "blockquote");
-				item.checkActive = generalActiveCheck(schema.nodes.blockquote);
+				item.command = toggleWrapIn(editorView, "blockquote")
+				item.checkActive = generalActiveCheck(schema.nodes.blockquote)
 			} else if (item.type === "hr") {
-				item.command = insertAtEnd(editorView, "horizontal_rule");
+				item.command = insertAtEnd(editorView, "horizontal_rule")
 			} else if (item.type === "ul") {
-				item.command = toggleWrapIn(editorView, "bullet_list");
-				item.checkActive = generalActiveCheck(schema.nodes.bullet_list);
+				item.command = toggleWrapIn(editorView, "bullet_list")
+				item.checkActive = generalActiveCheck(schema.nodes.bullet_list)
 			} else if (item.type === "ol") {
-				item.command = toggleWrapIn(editorView, "ordered_list");
-				item.checkActive = generalActiveCheck(schema.nodes.ordered_list);
+				item.command = toggleWrapIn(editorView, "ordered_list")
+				item.checkActive = generalActiveCheck(schema.nodes.ordered_list)
 			} 
-		};
+		}
 
 		// Append to container
 		for (const item of this.items) {
@@ -91,18 +91,18 @@ class MenuView {
 
 		// Assign commands
 		this.dom.addEventListener('mousedown', e => {
-			e.preventDefault();
+			e.preventDefault()
 			if (!e.target.className.includes('texteditor__linkinput')) {
-				editorView.focus();
+				editorView.focus()
 			}
 			items.forEach(({ command, dom }) => {
 				if (typeof command === "function") {
 					if (dom.contains(e.target)) {
-						command(editorView.state, editorView.dispatch, editorView);
+						command(editorView.state, editorView.dispatch, editorView)
 					}
 				}
-			});
-		});
+			})
+		})
 	}
 
 	update(view, prevState) {
@@ -110,11 +110,11 @@ class MenuView {
 		// Set menu buttons to 'active', if current selection matches the command the button would assign
 		this.items.forEach(({ dom, checkActive }) => {
 			if (checkActive && checkActive(this.editorView.state)) {
-				dom.classList.add('active');
+				dom.classList.add('active')
 			} else {
-				dom.classList.remove('active');
+				dom.classList.remove('active')
 			}
-		});
+		})
 
 		let menu = view.dom.parentNode.querySelector('.texteditor__menu')
 
@@ -122,10 +122,10 @@ class MenuView {
 
 			// Show/hide menu
 			if (this.editorView.state.selection.empty) {
-				menu.classList.remove("active");
-				menu.classList.remove("link");
+				menu.classList.remove("active")
+				menu.classList.remove("link")
 			} else {
-				menu.classList.add("active");
+				menu.classList.add("active")
 			}
 
 			// Reposition menu, if selection changed
@@ -133,9 +133,9 @@ class MenuView {
 			|| this.editorView.state.selection.to !== prevState.selection.to) {
 
 				// Get selection coordinates
-				let { from, to } = this.editorView.state.selection;
-				let start = this.editorView.coordsAtPos(from);
-				let end = this.editorView.coordsAtPos(to);
+				let { from, to } = this.editorView.state.selection
+				let start = this.editorView.coordsAtPos(from)
+				let end = this.editorView.coordsAtPos(to)
 
 				if (menu.offsetParent) {
 
@@ -167,7 +167,7 @@ class MenuView {
 	}
 
 	destroy() {
-		this.dom.remove();
+		this.dom.remove()
 	}
 
 }
@@ -175,15 +175,15 @@ class MenuView {
 export function menuPlugin(items) {
 	return new Plugin({
 		view(editorView) {
-			let menuView = new MenuView(items, editorView);
-			editorView.dom.parentNode.insertBefore(menuView.dom, editorView.dom);
-			return menuView;
+			let menuView = new MenuView(items, editorView)
+			editorView.dom.parentNode.insertBefore(menuView.dom, editorView.dom)
+			return menuView
 		},
 		props: {
 			handleDOMEvents: {
 				focus: (view, event) => {
-					view.wasFocused = true;
-					return false;
+					view.wasFocused = true
+					return false
 				},
 				blur: (view, event) => { 
 
@@ -207,5 +207,5 @@ export function menuPlugin(items) {
 			},
 		},
 		appendTransaction(transaction, oldState, newState) { },
-	});
+	})
 }
