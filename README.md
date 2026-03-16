@@ -5,6 +5,7 @@
 #### Development
 
 ```
+npm i
 npm run dev
 ```
 
@@ -52,5 +53,5 @@ Editor({
 
 #### Contributors
 
-- [Jakub Markiewicz](https://github.com/JakubMarkiewicz)
 - [Bryan Buchanan](https://github.com/bryanbuchanan)
+- [Jakub Markiewicz](https://github.com/JakubMarkiewicz)
