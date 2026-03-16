@@ -1,5 +1,6 @@
 import {inputRules, wrappingInputRule, textblockTypeInputRule,
 	smartQuotes, emDash, ellipsis} from "prosemirror-inputrules"
+import {Plugin} from "prosemirror-state"
 
 // : (NodeType) → InputRule
 // Given a blockquote node type, returns an input rule that turns `"> "`
@@ -39,6 +40,34 @@ export function codeBlockRule(nodeType) {
 export function headingRule(nodeType, maxLevel) {
 	return textblockTypeInputRule(new RegExp("^(#{1," + maxLevel + "})\\s$"),
 							nodeType, match => ({level: match[1].length}))
+}
+
+// Plugin that auto-links typed URLs after a space is pressed.
+// Uses appendTransaction so the space is inserted normally first.
+export function autoLinkPlugin(schema) {
+	const markType = schema.marks.link
+	const urlRegex = /(?:^|\s)((?:https?:\/\/|www\.)\S+)\s$/
+
+	return new Plugin({
+		appendTransaction(transactions, oldState, newState) {
+			if (!transactions.some(tr => tr.docChanged)) return null
+
+			const {$from} = newState.selection
+			const textBefore = $from.parent.textBetween(0, $from.parentOffset)
+			const match = urlRegex.exec(textBefore)
+			if (!match) return null
+
+			const url = match[1]
+			const urlStart = $from.start() + match.index + match[0].indexOf(url)
+			const urlEnd = urlStart + url.length
+
+			if (newState.doc.rangeHasMark(urlStart, urlEnd, markType)) return null
+
+			const href = url.startsWith('http') ? url : `http://${url}`
+			const mark = markType.create({href})
+			return newState.tr.addMark(urlStart, urlEnd, mark)
+		}
+	})
 }
 
 // : (Schema) → Plugin

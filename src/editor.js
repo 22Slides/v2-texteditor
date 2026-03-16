@@ -8,7 +8,7 @@ import { keymap } from "prosemirror-keymap"
 import { history } from "prosemirror-history"
 import { addListNodes } from "prosemirror-schema-list"
 
-import { buildInputRules } from "./inputrules.js"
+import { buildInputRules, autoLinkPlugin } from "./inputrules.js"
 import { buildKeymap } from "./keymap.js"
 
 import { menuPlugin } from "./menuPlugin.js"
@@ -38,6 +38,7 @@ const Editor = parameters => {
 		plugins: [
 			menu,
 			buildInputRules(mySchema),
+			autoLinkPlugin(mySchema),
 			history(),
 			keymap(buildKeymap(mySchema)),
 			keymap(baseKeymap),
@@ -85,6 +86,18 @@ const Editor = parameters => {
 				})
 
 			}
+		},
+		handlePaste(view, event) {
+			const text = event.clipboardData?.getData('text/plain')
+			if (text && /^(https?:\/\/|www\.)\S+$/i.test(text.trim())) {
+				const url = text.trim()
+				const href = url.startsWith('http') ? url : `http://${url}`
+				const mark = view.state.schema.marks.link.create({ href })
+				const node = view.state.schema.text(url, [mark])
+				view.dispatch(view.state.tr.replaceSelectionWith(node, false))
+				return true
+			}
+			return false
 		},
 		handleDOMEvents: {
 			focus: (view, event) => {

@@ -4,7 +4,7 @@ import postcss from 'rollup-plugin-postcss'
 import serve from 'rollup-plugin-serve'
 import { terser } from 'rollup-plugin-terser'
 
-const dev = process.env.ROLLUP_WATCH;
+const dev = process.env.ROLLUP_WATCH
 
 export default [
 	{
