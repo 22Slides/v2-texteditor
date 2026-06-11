@@ -5,7 +5,7 @@ import {
 import { wrapInList, splitListItem, liftListItem, sinkListItem } from "prosemirror-schema-list"
 import { undo, redo } from "prosemirror-history"
 import { undoInputRule } from "prosemirror-inputrules"
-import { goToNextCell, CellSelection, deleteTable } from "prosemirror-tables"
+import { goToNextCell, CellSelection, deleteTable, deleteRow, deleteColumn, addRowAfter, isInTable } from "prosemirror-tables"
 import { GapCursor } from "prosemirror-gapcursor"
 import { TextSelection } from "prosemirror-state"
 
@@ -38,13 +38,17 @@ const escapeTableEdge = dir => (state, dispatch, view) => {
 	return false
 }
 
-// When every cell of a table is selected, delete the whole table instead of
-// just clearing the cells' contents (the prosemirror-tables default).
-const deleteFullySelectedTable = (state, dispatch) => {
+// When the cell selection covers entire rows or columns, delete that table
+// section instead of just clearing the cells' contents (the prosemirror-tables
+// default). Whole table selected → delete the table.
+const deleteFullySelectedCells = (state, dispatch) => {
 	const sel = state.selection
-	if (sel instanceof CellSelection && sel.isRowSelection() && sel.isColSelection()) {
-		return deleteTable(state, dispatch)
-	}
+	if (!(sel instanceof CellSelection)) return false
+	const fullRows = sel.isRowSelection()
+	const fullCols = sel.isColSelection()
+	if (fullRows && fullCols) return deleteTable(state, dispatch)
+	if (fullRows) return deleteRow(state, dispatch)
+	if (fullCols) return deleteColumn(state, dispatch)
 	return false
 }
 
@@ -126,11 +130,21 @@ export function buildKeymap(schema, mapKeys) {
 		bind("Shift-Enter", cmd)
 		if (mac) bind("Ctrl-Enter", cmd)
 	}
+	// Tab in the table's last cell appends a new row and moves into it
+	const appendRowOnTab = (state, dispatch, view) => {
+		if (!isInTable(state)) return false
+		if (dispatch) {
+			addRowAfter(state, dispatch)
+			goToNextCell(1)(view.state, view.dispatch)
+		}
+		return true
+	}
+
 	if (type = schema.nodes.table) {
-		bind("Tab", goToNextCell(1))
+		bind("Tab", chainCommands(goToNextCell(1), appendRowOnTab))
 		bind("Shift-Tab", goToNextCell(-1))
-		bind("Backspace", chainCommands(deleteFullySelectedTable, undoInputRule))
-		bind("Delete", deleteFullySelectedTable)
+		bind("Backspace", chainCommands(deleteFullySelectedCells, undoInputRule))
+		bind("Delete", deleteFullySelectedCells)
 		bind("ArrowUp", escapeTableEdge(-1))
 		bind("ArrowDown", escapeTableEdge(1))
 	}

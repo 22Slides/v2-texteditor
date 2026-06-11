@@ -1,5 +1,6 @@
 import { Plugin } from "prosemirror-state";
 import { toggleMark } from "prosemirror-commands";
+import { addRowAfter, addColumnAfter, isInTable } from "prosemirror-tables";
 import {
 	stringToDom,
 	generalActiveCheck,
@@ -8,6 +9,7 @@ import {
 	toggleBlockType,
 	toggleWrapIn,
 	setupInputListeners,
+	insertTable,
 } from "./pluginUtils";
 
 class MenuView {
@@ -82,7 +84,16 @@ class MenuView {
 			} else if (item.type === "ol") {
 				item.command = toggleWrapIn(editorView, "ordered_list")
 				item.checkActive = generalActiveCheck(schema.nodes.ordered_list)
-			} 
+			} else if (item.type === "table") {
+				item.command = insertTable
+				item.checkVisible = state => !isInTable(state)
+			} else if (item.type === "table-row") {
+				item.command = addRowAfter
+				item.checkVisible = isInTable
+			} else if (item.type === "table-col") {
+				item.command = addColumnAfter
+				item.checkVisible = isInTable
+			}
 		}
 
 		// Append to container
@@ -114,8 +125,12 @@ class MenuView {
 
 	update(view, prevState) {
 
-		// Set menu buttons to 'active', if current selection matches the command the button would assign
-		this.items.forEach(({ dom, checkActive }) => {
+		// Set menu buttons to 'active', if current selection matches the command the button would assign.
+		// Buttons with a checkVisible (e.g. table controls) only show in the right context.
+		this.items.forEach(({ dom, checkActive, checkVisible }) => {
+			if (checkVisible) {
+				dom.style.display = checkVisible(this.editorView.state) ? '' : 'none'
+			}
 			if (checkActive && checkActive(this.editorView.state)) {
 				dom.classList.add('active')
 			} else {
