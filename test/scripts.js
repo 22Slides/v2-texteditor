@@ -1,8 +1,10 @@
 import Editor from "../dist/editor.js"
 
+window.editorViews = []
+
 for (const text of document.querySelectorAll('.text')) {
 
-	Editor({
+	window.editorViews.push(Editor({
 		element: text,
 		menu: [
 			{ type: "strong", title: "Bold", icon: '<i class="fa-solid fa-bold"></i>' },
@@ -28,6 +30,6 @@ for (const text of document.querySelectorAll('.text')) {
 			console.log('blurrrrr')
 		}
 
-	})
+	}))
 
 }
