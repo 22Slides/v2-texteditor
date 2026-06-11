@@ -8,6 +8,7 @@ import { keymap } from "prosemirror-keymap"
 import { history } from "prosemirror-history"
 import { addListNodes } from "prosemirror-schema-list"
 import { tableNodes, tableEditing, fixTables } from "prosemirror-tables"
+import { gapCursor } from "prosemirror-gapcursor"
 
 import { buildInputRules, autoLinkPlugin } from "./inputrules.js"
 import { buildKeymap } from "./keymap.js"
@@ -49,6 +50,9 @@ const Editor = parameters => {
 			// keymap takes precedence over tableEditing's clear-cells handler
 			keymap(buildKeymap(mySchema)),
 			tableEditing(),
+			// Lets arrow keys reach a cursor position before/after a table at
+			// the document edge, so content can be added around it
+			gapCursor(),
 			buildInputRules(mySchema),
 			autoLinkPlugin(mySchema),
 			history(),
@@ -130,8 +134,10 @@ const Editor = parameters => {
 			blur: (view, event) => {
 				if (parameters.blur) parameters.blur()
 			},
-		}, 
+		},
 	})
+
+	return view
 
 }
 

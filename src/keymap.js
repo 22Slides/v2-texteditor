@@ -6,6 +6,37 @@ import { wrapInList, splitListItem, liftListItem, sinkListItem } from "prosemirr
 import { undo, redo } from "prosemirror-history"
 import { undoInputRule } from "prosemirror-inputrules"
 import { goToNextCell, CellSelection, deleteTable } from "prosemirror-tables"
+import { GapCursor } from "prosemirror-gapcursor"
+import { TextSelection } from "prosemirror-state"
+
+// Arrow up/down from a table's edge row places a gap cursor before/after the
+// table when there's nothing else there to move into (e.g. the table is the
+// first/last node in the document). Without this, prosemirror-tables eats the
+// keypress by snapping the cursor to the cell boundary, trapping it.
+const escapeTableEdge = dir => (state, dispatch, view) => {
+	const sel = state.selection
+	if (!sel.empty || !(sel instanceof TextSelection)) return false
+	if (view && !view.endOfTextblock(dir < 0 ? "up" : "down")) return false
+	const { $head } = sel
+	for (let d = $head.depth; d > 0; d--) {
+		if ($head.node(d).type.spec.tableRole !== "row") continue
+		const tableDepth = d - 1
+		const table = $head.node(tableDepth)
+		// Only escape from the first row going up / last row going down,
+		// and only from the cell's first/last block, so in-table navigation
+		// still belongs to prosemirror-tables
+		const rowIndex = $head.index(tableDepth)
+		const blockIndex = $head.index(d + 1)
+		const cell = $head.node(d + 1)
+		if (dir < 0 && (rowIndex > 0 || blockIndex > 0)) return false
+		if (dir > 0 && (rowIndex < table.childCount - 1 || blockIndex < cell.childCount - 1)) return false
+		const $gap = state.doc.resolve(dir < 0 ? $head.before(tableDepth) : $head.after(tableDepth))
+		if (!GapCursor.valid($gap)) return false
+		if (dispatch) dispatch(state.tr.setSelection(new GapCursor($gap)).scrollIntoView())
+		return true
+	}
+	return false
+}
 
 // When every cell of a table is selected, delete the whole table instead of
 // just clearing the cells' contents (the prosemirror-tables default).
@@ -100,6 +131,8 @@ export function buildKeymap(schema, mapKeys) {
 		bind("Shift-Tab", goToNextCell(-1))
 		bind("Backspace", chainCommands(deleteFullySelectedTable, undoInputRule))
 		bind("Delete", deleteFullySelectedTable)
+		bind("ArrowUp", escapeTableEdge(-1))
+		bind("ArrowDown", escapeTableEdge(1))
 	}
 	if (type = schema.nodes.list_item) {
 		bind("Enter", splitListItem(type))

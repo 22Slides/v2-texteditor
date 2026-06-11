@@ -32,7 +32,43 @@ $height: 50px;
 		td.selectedCell, th.selectedCell {
 			background: rgba(45, 110, 235, 0.12);
 		}
-		
+
+	}
+
+	// Gap cursor (prosemirror-gapcursor) — blinking line shown at positions
+	// with no text, e.g. before/after a table at the document edge
+	.ProseMirror-gapcursor {
+		display: none;
+		pointer-events: none;
+		position: absolute;
+
+		&:after {
+			content: "";
+			display: block;
+			position: absolute;
+			top: -2px;
+			width: 20px;
+			border-top: 1px solid black;
+			animation: ProseMirror-cursor-blink 1.1s steps(2, start) infinite;
+		}
+	}
+
+	.ProseMirror-focused .ProseMirror-gapcursor {
+		display: block;
+	}
+
+	// ProseMirror adds this class while a non-visible selection (gap cursor,
+	// cell selection) is active; the native caret must be hidden via CSS
+	.ProseMirror-hideselection {
+		caret-color: transparent;
+
+		*::selection {
+			background: transparent;
+		}
+
+		*::-moz-selection {
+			background: transparent;
+		}
 	}
 
 	&__menu {
@@ -134,4 +170,10 @@ $height: 50px;
 		display: flex;
 	}
 
+}
+
+@keyframes ProseMirror-cursor-blink {
+	to {
+		visibility: hidden;
+	}
 }
