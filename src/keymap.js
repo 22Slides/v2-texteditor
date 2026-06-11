@@ -5,7 +5,17 @@ import {
 import { wrapInList, splitListItem, liftListItem, sinkListItem } from "prosemirror-schema-list"
 import { undo, redo } from "prosemirror-history"
 import { undoInputRule } from "prosemirror-inputrules"
-import { goToNextCell } from "prosemirror-tables"
+import { goToNextCell, CellSelection, deleteTable } from "prosemirror-tables"
+
+// When every cell of a table is selected, delete the whole table instead of
+// just clearing the cells' contents (the prosemirror-tables default).
+const deleteFullySelectedTable = (state, dispatch) => {
+	const sel = state.selection
+	if (sel instanceof CellSelection && sel.isRowSelection() && sel.isColSelection()) {
+		return deleteTable(state, dispatch)
+	}
+	return false
+}
 
 const mac = typeof navigator != "undefined" ? /Mac/.test(navigator.platform) : false
 
@@ -88,6 +98,8 @@ export function buildKeymap(schema, mapKeys) {
 	if (type = schema.nodes.table) {
 		bind("Tab", goToNextCell(1))
 		bind("Shift-Tab", goToNextCell(-1))
+		bind("Backspace", chainCommands(deleteFullySelectedTable, undoInputRule))
+		bind("Delete", deleteFullySelectedTable)
 	}
 	if (type = schema.nodes.list_item) {
 		bind("Enter", splitListItem(type))

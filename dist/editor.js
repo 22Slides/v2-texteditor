@@ -15710,6 +15710,19 @@ function goToNextCell(direction) {
 	};
 }
 /**
+* Deletes the table around the selection, if any.
+*
+* @public
+*/
+function deleteTable(state, dispatch) {
+	const $pos = state.selection.$anchor;
+	for (let d = $pos.depth; d > 0; d--) if ($pos.node(d).type.spec.tableRole == "table") {
+		if (dispatch) dispatch(state.tr.delete($pos.before(d), $pos.after(d)).scrollIntoView());
+		return true;
+	}
+	return false;
+}
+/**
 * Deletes the content of the selected cells, if they are not empty.
 *
 * @public
@@ -16472,6 +16485,16 @@ function buildInputRules(schema) {
 	return inputRules({rules})
 }
 
+// When every cell of a table is selected, delete the whole table instead of
+// just clearing the cells' contents (the prosemirror-tables default).
+const deleteFullySelectedTable = (state, dispatch) => {
+	const sel = state.selection;
+	if (sel instanceof CellSelection && sel.isRowSelection() && sel.isColSelection()) {
+		return deleteTable(state, dispatch)
+	}
+	return false
+};
+
 const mac = typeof navigator != "undefined" ? /Mac/.test(navigator.platform) : false;
 
 // :: (Schema, ?Object) → Object
@@ -16553,6 +16576,8 @@ function buildKeymap(schema, mapKeys) {
 	if (type = schema.nodes.table) {
 		bind("Tab", goToNextCell(1));
 		bind("Shift-Tab", goToNextCell(-1));
+		bind("Backspace", chainCommands(deleteFullySelectedTable, undoInputRule));
+		bind("Delete", deleteFullySelectedTable);
 	}
 	if (type = schema.nodes.list_item) {
 		bind("Enter", splitListItem(type));
@@ -17083,11 +17108,13 @@ const Editor = parameters => {
 		doc: DOMParser.fromSchema(mySchema).parse(content),
 		plugins: [
 			menu,
+			// Before tableEditing() so the full-table-selection delete in our
+			// keymap takes precedence over tableEditing's clear-cells handler
+			keymap(buildKeymap(mySchema)),
 			tableEditing(),
 			buildInputRules(mySchema),
 			autoLinkPlugin(mySchema),
 			history(),
-			keymap(buildKeymap(mySchema)),
 			keymap(baseKeymap),
 
 			// keymap({
