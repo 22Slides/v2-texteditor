@@ -45,11 +45,13 @@ const Editor = parameters => {
 		doc: DOMParser.fromSchema(mySchema).parse(content),
 		plugins: [
 			menu,
+			// Before tableEditing() so the full-table-selection delete in our
+			// keymap takes precedence over tableEditing's clear-cells handler
+			keymap(buildKeymap(mySchema)),
 			tableEditing(),
 			buildInputRules(mySchema),
 			autoLinkPlugin(mySchema),
 			history(),
-			keymap(buildKeymap(mySchema)),
 			keymap(baseKeymap),
 
 			// keymap({
