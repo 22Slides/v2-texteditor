@@ -49,7 +49,14 @@ Editor({
 #### Publishing
 
 1. Run the compiler: `npm run build`
-2. Publish to main git branch
+2. Commit all changes (the version step below requires a clean working tree)
+3. Update the version: `npm version patch` (or `minor`/`major`) — this bumps
+   package.json, makes the version commit, and creates the `vX.Y.Z` git tag
+   in one step
+4. Push **with the tag**: `git push origin dev --follow-tags` — plain
+   `git push` does not push tags, and consumers resolve
+   `#semver:` dependencies against tags, not branches
+5. Merge to main git branch
 
 #### Contributors
 
