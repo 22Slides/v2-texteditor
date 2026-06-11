@@ -1,6 +1,6 @@
 import { EditorState } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
-import { Schema, DOMParser } from "prosemirror-model"
+import { Schema, DOMParser, DOMSerializer } from "prosemirror-model"
 
 import { schema } from "prosemirror-schema-basic"
 import { baseKeymap } from "prosemirror-commands"
@@ -40,6 +40,18 @@ const Editor = parameters => {
 		),
 		marks: schema.spec.marks,
 	})
+
+	// Heal content saved by older versions that captured ProseMirror's
+	// rendering artifacts via innerHTML: drop placeholder breaks, and empty
+	// out blocks that contain nothing but breaks (one was accumulated per
+	// save cycle, so these blocks were visually empty in the editor)
+	content.querySelectorAll('br.ProseMirror-trailingBreak').forEach(br => br.remove())
+	for (const block of content.querySelectorAll('p, h1, h2, h3, h4, h5, h6')) {
+		const breaksOnly = block.childNodes.length && [...block.childNodes].every(node =>
+			node.nodeName === 'BR' || (node.nodeType === Node.TEXT_NODE && !node.textContent.trim())
+		)
+		if (breaksOnly) block.replaceChildren()
+	}
 
 	// Define state
 	let state = EditorState.create({
@@ -82,6 +94,16 @@ const Editor = parameters => {
 	const tableFix = fixTables(state)
 	if (tableFix) state = state.apply(tableFix)
 
+	// Serializes the document itself, unlike view.dom.innerHTML, which would
+	// capture rendering artifacts (placeholder breaks, gap cursor widgets,
+	// selection classes) as if they were content
+	const serializer = DOMSerializer.fromSchema(mySchema)
+	const docToHTML = doc => {
+		const div = document.createElement('div')
+		div.appendChild(serializer.serializeFragment(doc.content))
+		return div.innerHTML
+	}
+
 	// Define view
 	let view = new EditorView(editor, {
 		state,
@@ -95,7 +117,7 @@ const Editor = parameters => {
 			// Save content
 			if (!previousState.eq(view.state.doc)) {
 
-				const html = view.dom.innerHTML
+				const html = docToHTML(view.state.doc)
 				const id = el.dataset.id ?? el.id ?? "About 350"
 		
 				// Send data to callback function
