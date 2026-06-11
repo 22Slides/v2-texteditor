@@ -7,9 +7,11 @@ import { baseKeymap } from "prosemirror-commands"
 import { keymap } from "prosemirror-keymap"
 import { history } from "prosemirror-history"
 import { addListNodes } from "prosemirror-schema-list"
+import { tableNodes, tableEditing, fixTables } from "prosemirror-tables"
 
 import { buildInputRules, autoLinkPlugin } from "./inputrules.js"
 import { buildKeymap } from "./keymap.js"
+import { markdownToTable } from "./pluginUtils.js"
 
 import { menuPlugin } from "./menuPlugin.js"
 
@@ -28,15 +30,22 @@ const Editor = parameters => {
 	const menu = new menuPlugin(parameters.menu)
 
 	const mySchema = new Schema({
-		nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block'),
+		nodes: addListNodes(schema.spec.nodes, 'paragraph block*', 'block').append(
+			tableNodes({
+				tableGroup: 'block',
+				cellContent: 'block+',
+				cellAttributes: {},
+			})
+		),
 		marks: schema.spec.marks,
 	})
 
 	// Define state
-	const state = EditorState.create({
+	let state = EditorState.create({
 		doc: DOMParser.fromSchema(mySchema).parse(content),
 		plugins: [
 			menu,
+			tableEditing(),
 			buildInputRules(mySchema),
 			autoLinkPlugin(mySchema),
 			history(),
@@ -62,6 +71,10 @@ const Editor = parameters => {
 			// }),
 		],
 	})
+
+	// Repair malformed tables in pre-existing content (uneven rows, etc.)
+	const tableFix = fixTables(state)
+	if (tableFix) state = state.apply(tableFix)
 
 	// Define view
 	let view = new EditorView(editor, {
@@ -96,6 +109,15 @@ const Editor = parameters => {
 				const node = view.state.schema.text(url, [mark])
 				view.dispatch(view.state.tr.replaceSelectionWith(node, false))
 				return true
+			}
+			// Markdown tables only arrive as plain text; HTML tables go through the default paste path
+			const html = event.clipboardData?.getData('text/html')
+			if (!html && text && text.includes('\n')) {
+				const table = markdownToTable(view.state.schema, text)
+				if (table) {
+					view.dispatch(view.state.tr.replaceSelectionWith(table).scrollIntoView())
+					return true
+				}
 			}
 			return false
 		},

@@ -4,6 +4,36 @@ $height: 50px;
 
 .texteditor {
 
+	[contenteditable] {
+		white-space: pre-wrap;
+	}
+
+	table {
+		border-collapse: collapse;
+		table-layout: fixed;
+		width: 100%;
+		margin: 1em 0;
+
+		td, th {
+			border: 1px solid #ddd;
+			padding: 8px 12px;
+			vertical-align: top;
+			text-align: left;
+
+			p {
+				margin: 0;
+			}
+		}
+
+		th {
+			background: #f4f4f4;
+		}
+
+		td.selectedCell, th.selectedCell {
+			background: rgba(45, 110, 235, 0.12);
+		}
+	}
+
 	&__menu {
 		display: flex;
 		position: absolute;
