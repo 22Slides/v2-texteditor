@@ -18,6 +18,9 @@ for (const text of document.querySelectorAll('.text')) {
 			// { type: "ul", title: "Bullet List", icon: '<i class="fal fa-list"></i>' },
 			// { type: "ol", title: "Numbered List", icon: '<i class="fal fa-list-ol"></i>' },
 			{ type: "blockquote", title: "Quote", icon: '<i class="fa-solid fa-quotes"></i>' },
+			{ type: "table", title: "Insert table", icon: '<i class="fa-solid fa-table"></i>' },
+			{ type: "table-row", title: "Add row below", icon: '<i class="fa-solid fa-table-rows"></i>' },
+			{ type: "table-col", title: "Add column right", icon: '<i class="fa-solid fa-table-columns"></i>' },
 			// { type: "hr", title: "Horizontal Line", icon: 'hr' }
 		],
 		change: data => {

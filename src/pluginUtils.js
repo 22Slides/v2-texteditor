@@ -1,5 +1,7 @@
 import { lift, setBlockType, toggleMark, wrapIn } from "prosemirror-commands"
 import { liftListItem, wrapInList } from "prosemirror-schema-list"
+import { isInTable } from "prosemirror-tables"
+import { TextSelection } from "prosemirror-state"
 
 // Utility in place of native chainCommands, to prevent it from stopping on first truthy value
 function chainTransactions(...commands) {
@@ -105,6 +107,28 @@ export const insertAtEnd = (editorView, type) => (_, dispatch) => {
   tr.insert(to, node);
   return dispatch(tr);
 };
+
+// Insert a starter table (2 columns, header row + 2 body rows) after the
+// current block and put the cursor in the first header cell
+export const insertTable = (state, dispatch) => {
+	if (isInTable(state)) return false
+	const schema = state.schema
+	const makeCell = type => schema.nodes[type].create(null, schema.nodes.paragraph.create())
+	const makeRow = type => schema.nodes.table_row.create(null, [makeCell(type), makeCell(type)])
+	const table = schema.nodes.table.create(null, [
+		makeRow('table_header'),
+		makeRow('table_cell'),
+		makeRow('table_cell'),
+	])
+	const { $to } = state.selection
+	const insertPos = $to.depth ? $to.after(1) : $to.pos
+	if (dispatch) {
+		const tr = state.tr.insert(insertPos, table)
+		tr.setSelection(TextSelection.near(tr.doc.resolve(insertPos + 1))).scrollIntoView()
+		dispatch(tr)
+	}
+	return true
+}
 
 // Parse a pasted markdown table into a table node, or return null if the text isn't one.
 // Expects a header line, a |---|---| separator line, then body lines.

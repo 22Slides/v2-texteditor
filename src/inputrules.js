@@ -1,6 +1,8 @@
 import {inputRules, wrappingInputRule, textblockTypeInputRule,
-	smartQuotes, emDash, ellipsis} from "prosemirror-inputrules"
-import {Plugin} from "prosemirror-state"
+	smartQuotes, emDash, ellipsis, InputRule} from "prosemirror-inputrules"
+import {Plugin, TextSelection} from "prosemirror-state"
+import {isInTable} from "prosemirror-tables"
+import {markdownToTable} from "./pluginUtils.js"
 
 // : (NodeType) → InputRule
 // Given a blockquote node type, returns an input rule that turns `"> "`
@@ -42,6 +44,50 @@ export function headingRule(nodeType, maxLevel) {
 							nodeType, match => ({level: match[1].length}))
 }
 
+// : (Schema) → InputRule
+// Typing a markdown table separator line (e.g. "|---|---|") directly below a
+// "| header | header |" line turns both lines into a table with one empty
+// body row, cursor in its first cell. Accepts em-dashes because the emDash
+// smart-punctuation rule converts "--" while the separator is being typed.
+export function tableRule(schema) {
+	return new InputRule(/^\|?(?:\s*:?[-—]+:?\s*\|)+$/, (state, match, start, end) => {
+		if (isInTable(state)) return null
+		const $start = state.doc.resolve(start)
+		if ($start.depth !== 1 || $start.parent.type !== schema.nodes.paragraph) return null
+		const index = $start.index(0)
+		if (index === 0) return null
+		const prev = state.doc.child(index - 1)
+		if (prev.type !== schema.nodes.paragraph || !prev.textContent.includes('|')) return null
+
+		const separator = match[0].replace(/—/g, '---')
+		const headerTable = markdownToTable(schema, prev.textContent + '\n' + separator)
+		if (!headerTable) return null
+
+		const header = headerTable.child(0)
+
+		// Only fire once the separator is fully typed: one |---| segment per
+		// header column. Firing on the first segment would steal keystrokes
+		// the user still intends to type.
+		const sepCount = separator.replace(/^\|/, '').replace(/\|$/, '').split('|').length
+		if (sepCount !== header.childCount) return null
+
+		// Append an empty body row to type into
+		const cells = []
+		for (let i = 0; i < header.childCount; i++) {
+			cells.push(schema.nodes.table_cell.create(null, schema.nodes.paragraph.create()))
+		}
+		const table = schema.nodes.table.create(null, [
+			header,
+			schema.nodes.table_row.create(null, cells),
+		])
+
+		const from = $start.before(1) - prev.nodeSize
+		const tr = state.tr.replaceRangeWith(from, end, table)
+		tr.setSelection(TextSelection.near(tr.doc.resolve(from + 1 + header.nodeSize)))
+		return tr
+	})
+}
+
 // Plugin that auto-links typed URLs after a space is pressed.
 // Uses appendTransaction so the space is inserted normally first.
 export function autoLinkPlugin(schema) {
@@ -80,5 +126,6 @@ export function buildInputRules(schema) {
 		if (type = schema.nodes.bullet_list) rules.push(bulletListRule(type))
 		if (type = schema.nodes.code_block) rules.push(codeBlockRule(type))
 		if (type = schema.nodes.heading) rules.push(headingRule(type, 6))
+		if (type = schema.nodes.table) rules.push(tableRule(schema))
 	return inputRules({rules})
 }
