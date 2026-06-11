@@ -1,3 +1,27 @@
+.texteditor [contenteditable] {
+  white-space: pre-wrap;
+}
+.texteditor table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 1em 0;
+}
+.texteditor table td, .texteditor table th {
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  vertical-align: top;
+  text-align: left;
+}
+.texteditor table td p, .texteditor table th p {
+  margin: 0;
+}
+.texteditor table th {
+  background: #f4f4f4;
+}
+.texteditor table td.selectedCell, .texteditor table th.selectedCell {
+  background: rgba(45, 110, 235, 0.12);
+}
 .texteditor__menu {
   display: flex;
   position: absolute;

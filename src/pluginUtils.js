@@ -106,6 +106,43 @@ export const insertAtEnd = (editorView, type) => (_, dispatch) => {
   return dispatch(tr);
 };
 
+// Parse a pasted markdown table into a table node, or return null if the text isn't one.
+// Expects a header line, a |---|---| separator line, then body lines.
+export const markdownToTable = (schema, text) => {
+	const lines = text.trim().split(/\r?\n/).map(line => line.trim()).filter(line => line !== '')
+	if (lines.length < 2) return null
+	if (!lines.every(line => line.includes('|'))) return null
+
+	const splitRow = line => {
+		let row = line
+		if (row.startsWith('|')) row = row.slice(1)
+		if (row.endsWith('|') && !row.endsWith('\\|')) row = row.slice(0, -1)
+		return row.split(/(?<!\\)\|/).map(cell => cell.trim().replace(/\\\|/g, '|'))
+	}
+
+	const headerCells = splitRow(lines[0])
+	const separatorCells = splitRow(lines[1])
+	if (!separatorCells.every(cell => /^:?-+:?$/.test(cell))) return null
+
+	const bodyRows = lines.slice(2).map(splitRow)
+	const width = Math.max(headerCells.length, ...bodyRows.map(row => row.length), 1)
+
+	const makeCell = (type, content) => schema.nodes[type].create(null,
+		content
+			? schema.nodes.paragraph.create(null, schema.text(content))
+			: schema.nodes.paragraph.create()
+	)
+	const makeRow = (cells, type) => {
+		const padded = cells.concat(Array(width - cells.length).fill(''))
+		return schema.nodes.table_row.create(null, padded.map(cell => makeCell(type, cell)))
+	}
+
+	return schema.nodes.table.create(null, [
+		makeRow(headerCells, 'table_header'),
+		...bodyRows.map(row => makeRow(row, 'table_cell')),
+	])
+}
+
 // ==== link utils
 
 // Append "http" if doesnt exist

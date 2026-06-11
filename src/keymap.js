@@ -5,6 +5,7 @@ import {
 import { wrapInList, splitListItem, liftListItem, sinkListItem } from "prosemirror-schema-list"
 import { undo, redo } from "prosemirror-history"
 import { undoInputRule } from "prosemirror-inputrules"
+import { goToNextCell } from "prosemirror-tables"
 
 const mac = typeof navigator != "undefined" ? /Mac/.test(navigator.platform) : false
 
@@ -83,6 +84,10 @@ export function buildKeymap(schema, mapKeys) {
 		bind("Mod-Enter", cmd)
 		bind("Shift-Enter", cmd)
 		if (mac) bind("Ctrl-Enter", cmd)
+	}
+	if (type = schema.nodes.table) {
+		bind("Tab", goToNextCell(1))
+		bind("Shift-Tab", goToNextCell(-1))
 	}
 	if (type = schema.nodes.list_item) {
 		bind("Enter", splitListItem(type))

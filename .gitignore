@@ -4,3 +4,4 @@ node_modules
 .nova
 .claude
 CLAUDE.md
+.playwright-mcp
