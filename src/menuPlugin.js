@@ -47,6 +47,13 @@ class MenuView {
 			} else if (item.type === "em") {
 				item.command = toggleMark(schema.marks.em)
 				item.checkActive = generalActiveCheck(schema.marks.em)
+			} else if (item.type === "h1") {
+				item.command = toggleBlockType(editorView, "heading", {
+					level: 1,
+				})
+				item.checkActive = generalActiveCheck(schema.nodes.heading, {
+					level: 1,
+				})
 			} else if (item.type === "h2") {
 				item.command = toggleBlockType(editorView, "heading", {
 					level: 2,

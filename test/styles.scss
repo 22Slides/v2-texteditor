@@ -7,31 +7,32 @@ $height: 50px;
 	[contenteditable] {
 		white-space: pre-wrap;
 	}
-
+	
 	table {
 		border-collapse: collapse;
 		table-layout: fixed;
 		width: 100%;
 		margin: 1em 0;
-
+		
 		td, th {
 			border: 1px solid #ddd;
 			padding: 8px 12px;
 			vertical-align: top;
 			text-align: left;
-
+			
 			p {
 				margin: 0;
 			}
 		}
-
+		
 		th {
 			background: #f4f4f4;
 		}
-
+		
 		td.selectedCell, th.selectedCell {
 			background: rgba(45, 110, 235, 0.12);
 		}
+		
 	}
 
 	&__menu {
@@ -81,12 +82,16 @@ $height: 50px;
 			background: #666;
 		}
 
+		&--h1 {
+			font-size: 1em;
+		}
+		
 		&--h2 {
-			font-size: 1.1em;
+			font-size: .8em;
 		}
 
 		&--h3 {
-			font-size: 0.8em;
+			font-size: 0.7em;
 		}
 
 		&--divider {
