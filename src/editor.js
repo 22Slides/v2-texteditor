@@ -12,7 +12,7 @@ import { gapCursor } from "prosemirror-gapcursor"
 
 import { buildInputRules, autoLinkPlugin } from "./inputrules.js"
 import { buildKeymap } from "./keymap.js"
-import { markdownToTable } from "./pluginUtils.js"
+import { markdownToTable, tsvToTable } from "./pluginUtils.js"
 
 import { menuPlugin } from "./menuPlugin.js"
 
@@ -138,10 +138,12 @@ const Editor = parameters => {
 				view.dispatch(view.state.tr.replaceSelectionWith(node, false))
 				return true
 			}
-			// Markdown tables only arrive as plain text; HTML tables go through the default paste path
+			// Markdown and TSV tables only arrive as plain text; HTML tables go
+			// through the default paste path
 			const html = event.clipboardData?.getData('text/html')
 			if (!html && text && text.includes('\n')) {
 				const table = markdownToTable(view.state.schema, text)
+					|| tsvToTable(view.state.schema, text)
 				if (table) {
 					view.dispatch(view.state.tr.replaceSelectionWith(table).scrollIntoView())
 					return true
