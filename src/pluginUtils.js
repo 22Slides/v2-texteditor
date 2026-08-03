@@ -130,6 +130,27 @@ export const insertTable = (state, dispatch) => {
 	return true
 }
 
+// Build a table node from a header row and body rows of cell strings,
+// padding short rows to the widest row
+const buildTable = (schema, headerCells, bodyRows) => {
+	const width = Math.max(headerCells.length, ...bodyRows.map(row => row.length), 1)
+
+	const makeCell = (type, content) => schema.nodes[type].create(null,
+		content
+			? schema.nodes.paragraph.create(null, schema.text(content))
+			: schema.nodes.paragraph.create()
+	)
+	const makeRow = (cells, type) => {
+		const padded = cells.concat(Array(width - cells.length).fill(''))
+		return schema.nodes.table_row.create(null, padded.map(cell => makeCell(type, cell)))
+	}
+
+	return schema.nodes.table.create(null, [
+		makeRow(headerCells, 'table_header'),
+		...bodyRows.map(row => makeRow(row, 'table_cell')),
+	])
+}
+
 // Parse a pasted markdown table into a table node, or return null if the text isn't one.
 // Expects a header line, a |---|---| separator line, then body lines.
 export const markdownToTable = (schema, text) => {
@@ -148,23 +169,19 @@ export const markdownToTable = (schema, text) => {
 	const separatorCells = splitRow(lines[1])
 	if (!separatorCells.every(cell => /^:?-+:?$/.test(cell))) return null
 
-	const bodyRows = lines.slice(2).map(splitRow)
-	const width = Math.max(headerCells.length, ...bodyRows.map(row => row.length), 1)
+	return buildTable(schema, headerCells, lines.slice(2).map(splitRow))
+}
 
-	const makeCell = (type, content) => schema.nodes[type].create(null,
-		content
-			? schema.nodes.paragraph.create(null, schema.text(content))
-			: schema.nodes.paragraph.create()
-	)
-	const makeRow = (cells, type) => {
-		const padded = cells.concat(Array(width - cells.length).fill(''))
-		return schema.nodes.table_row.create(null, padded.map(cell => makeCell(type, cell)))
-	}
+// Parse pasted tab-separated text (spreadsheet apps like Numbers and Excel
+// sometimes provide no HTML clipboard flavor, only TSV) into a table node,
+// or return null if the text isn't tabular. First row becomes the header.
+export const tsvToTable = (schema, text) => {
+	const lines = text.replace(/\r\n?/g, '\n').split('\n').filter(line => line.trim() !== '')
+	if (lines.length < 2) return null
+	if (!lines.every(line => line.includes('\t'))) return null
 
-	return schema.nodes.table.create(null, [
-		makeRow(headerCells, 'table_header'),
-		...bodyRows.map(row => makeRow(row, 'table_cell')),
-	])
+	const rows = lines.map(line => line.split('\t').map(cell => cell.trim()))
+	return buildTable(schema, rows[0], rows.slice(1))
 }
 
 // ==== link utils
